@@ -3,8 +3,9 @@ import { useCOIStore } from '@store/coiStore'
 import { useState } from 'react'
 
 export const TopBar = () => {
-  const { isDarkMode, setDarkMode } = useCOIStore()
+  const { isDarkMode, setDarkMode, selectedRows, cois, updateCOI } = useCOIStore()
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const [showReminderMenu, setShowReminderMenu] = useState(false)
 
   const toggleDarkMode = () => {
     setDarkMode(!isDarkMode)
@@ -15,26 +16,91 @@ export const TopBar = () => {
     }
   }
 
+  const handleSendReminder = (type: string) => {
+    if (selectedRows.length === 0) {
+      alert('Please select at least one COI to send reminder')
+      return
+    }
+    
+    const selectedCOIs = cois.filter(c => selectedRows.includes(c.id))
+    
+    // Update reminder status for all selected COIs
+    selectedCOIs.forEach(coi => {
+      let reminderStatus = 'Not Sent'
+      if (type === '30-day') {
+        reminderStatus = 'Sent (30d)'
+      } else if (type === '60-day') {
+        reminderStatus = 'Sent (60d)'
+      } else if (type === 'Immediate') {
+        reminderStatus = 'Sent (30d)' // Default to 30d for immediate
+      }
+      
+      // Update the COI with new reminder status
+      updateCOI(coi.id, {
+        ...coi,
+        reminderStatus: reminderStatus as any,
+      })
+      
+      console.log(`${type} reminder sent to: ${coi.tenantEmail}`)
+    })
+    
+    alert(`${type} reminder sent to ${selectedRows.length} COI(s)\n\nReminder status updated in table`)
+    setShowReminderMenu(false)
+  }
+
   return (
     <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-8 py-4 flex items-center justify-between sticky top-0 z-10">
       {/* Left section - Title */}
       <div>
         <h1 className="text-xl font-bold text-gray-900 dark:text-white">COI Review Dashboard</h1>
-        <p className="text-xs text-gray-500 dark:text-gray-400">Manage your certificates of insurance</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400">Overview of Certificate of Insurance</p>
       </div>
 
       {/* Right section - Actions */}
       <div className="flex items-center gap-4">
-        {/* Buttons */}
-        <button className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
-          Send Bulk Reminder
-        </button>
+        {/* Bulk Reminder Button */}
+        <div className="relative">
+          <button
+            onClick={() => setShowReminderMenu(!showReminderMenu)}
+            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors flex items-center gap-2"
+          >
+            Send Bulk Reminder
+            <ChevronDown className="w-4 h-4" />
+          </button>
 
-        <button className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
+          {showReminderMenu && (
+            <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-20">
+              <button
+                onClick={() => handleSendReminder('30-day')}
+                className="w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border-b border-gray-200 dark:border-gray-700"
+              >
+                <p className="font-medium">30-day Reminder</p>
+                <p className="text-xs text-gray-500">Send 30 days before expiry</p>
+              </button>
+              <button
+                onClick={() => handleSendReminder('60-day')}
+                className="w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border-b border-gray-200 dark:border-gray-700"
+              >
+                <p className="font-medium">60-day Reminder</p>
+                <p className="text-xs text-gray-500">Send 60 days before expiry</p>
+              </button>
+              <button
+                onClick={() => handleSendReminder('Immediate')}
+                className="w-full text-left px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <p className="font-medium">Immediate Reminder</p>
+                <p className="text-xs text-gray-500">Send immediately</p>
+              </button>
+            </div>
+          )}
+        </div>
+
+        <button className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors flex items-center gap-2">
+          <MessageCircle className="w-4 h-4" />
           Ask LegalGraph AI
         </button>
 
-        <button className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors flex items-center gap-1">
+        <button className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors flex items-center gap-2">
           <HelpCircle className="w-4 h-4" />
           Help
         </button>

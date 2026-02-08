@@ -1,4 +1,4 @@
-import { COI } from '@types/coi'
+import { COI } from 'src/types/coi'
 
 export const MOCK_COIS: COI[] = [
   {

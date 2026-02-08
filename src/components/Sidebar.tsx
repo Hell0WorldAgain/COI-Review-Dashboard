@@ -1,10 +1,14 @@
-import { BarChart3, FileText, Settings, HelpCircle } from 'lucide-react'
+import { FileText, Download } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 
 export const Sidebar = () => {
   const location = useLocation()
 
   const isActive = (path: string) => location.pathname === path
+
+  const handleReviewDocuments = () => {
+    alert('Review Documents - Coming Soon!\n\nYou can review documents by clicking the document icon (📄) on each COI row in the table.')
+  }
 
   return (
     <aside className="w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 h-screen flex flex-col sticky top-0">
@@ -28,35 +32,22 @@ export const Sidebar = () => {
               : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
           }`}
         >
-          <BarChart3 className="w-5 h-5" />
+          <FileText className="w-5 h-5" />
           <span className="font-medium">COI Dashboard</span>
         </Link>
 
-        <Link
-          to="/dashboard?view=analysis"
-          className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800`}
+        <button
+          onClick={handleReviewDocuments}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
         >
-          <FileText className="w-5 h-5" />
-          <span className="font-medium">Analysis Reports</span>
-        </Link>
+          <Download className="w-5 h-5" />
+          <span className="font-medium">Review Documents</span>
+        </button>
       </nav>
-
-      {/* Bottom Section */}
-      <div className="border-t border-gray-200 dark:border-gray-800 p-4 space-y-2">
-        <button className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800">
-          <Settings className="w-5 h-5" />
-          <span className="font-medium">Settings</span>
-        </button>
-
-        <button className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800">
-          <HelpCircle className="w-5 h-5" />
-          <span className="font-medium">Help</span>
-        </button>
-      </div>
 
       {/* Version info */}
       <div className="px-4 py-3 text-xs text-gray-500 dark:text-gray-600 border-t border-gray-200 dark:border-gray-800">
-        <p>v1.0.0</p>
+        <p>v1.1.0</p>
       </div>
     </aside>
   )

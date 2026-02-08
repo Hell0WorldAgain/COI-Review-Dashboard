@@ -1,4 +1,4 @@
-import { COI } from '@types/coi'
+import { COI } from 'src/types/coi'
 import { format, parseISO, differenceInDays } from 'date-fns'
 
 export const formatDate = (dateString: string): string => {

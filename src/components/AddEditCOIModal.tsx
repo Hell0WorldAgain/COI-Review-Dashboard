@@ -1,12 +1,14 @@
 import { X } from 'lucide-react'
-import { COI } from '@types/coi'
+import type { COI } from 'src/types/coi'
 import { useState, useEffect } from 'react'
 import { validateEmail } from '@utils/index'
+
+type COIFormData = Omit<COI, 'id' | 'createdAt'>
 
 interface AddEditCOIModalProps {
   isOpen: boolean
   onClose: () => void
-  onSubmit: (data: Omit<COI, 'id' | 'createdAt'>) => void
+  onSubmit: (data: COIFormData) => void
   initialData?: COI
   properties: string[]
 }
@@ -18,15 +20,15 @@ export const AddEditCOIModal = ({
   initialData,
   properties,
 }: AddEditCOIModalProps) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<COIFormData>({
     property: '',
     tenantName: '',
     tenantEmail: '',
     unit: '',
     coiName: '',
     expiryDate: '',
-    status: 'Not Processed' as const,
-    reminderStatus: 'Not Sent' as const,
+    status: 'Not Processed',
+    reminderStatus: 'Not Sent',
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -55,6 +57,7 @@ export const AddEditCOIModal = ({
         reminderStatus: 'Not Sent',
       })
     }
+
     setErrors({})
   }, [initialData, isOpen])
 
@@ -63,8 +66,11 @@ export const AddEditCOIModal = ({
 
     if (!formData.property.trim()) newErrors.property = 'Property is required'
     if (!formData.tenantName.trim()) newErrors.tenantName = 'Tenant name is required'
-    if (!formData.tenantEmail.trim()) newErrors.tenantEmail = 'Tenant email is required'
-    else if (!validateEmail(formData.tenantEmail)) newErrors.tenantEmail = 'Invalid email format'
+    if (!formData.tenantEmail.trim()) {
+      newErrors.tenantEmail = 'Tenant email is required'
+    } else if (!validateEmail(formData.tenantEmail)) {
+      newErrors.tenantEmail = 'Invalid email format'
+    }
     if (!formData.unit.trim()) newErrors.unit = 'Unit is required'
     if (!formData.coiName.trim()) newErrors.coiName = 'COI name is required'
     if (!formData.expiryDate.trim()) newErrors.expiryDate = 'Expiry date is required'
@@ -77,7 +83,7 @@ export const AddEditCOIModal = ({
     e.preventDefault()
 
     if (validateForm()) {
-      onSubmit(formData as Omit<COI, 'id' | 'createdAt'>)
+      onSubmit(formData)
       onClose()
     }
   }
@@ -113,108 +119,120 @@ export const AddEditCOIModal = ({
             <div className="grid grid-cols-2 gap-4">
               {/* Property */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium mb-2">
                   Property *
                 </label>
                 <input
                   type="text"
                   list="properties-list"
                   value={formData.property}
-                  onChange={(e) => setFormData({ ...formData, property: e.target.value })}
-                  className="w-full px-4 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter property name"
+                  onChange={(e) =>
+                    setFormData(prev => ({ ...prev, property: e.target.value }))
+                  }
+                  className="w-full px-4 py-2 rounded-lg border"
                 />
                 <datalist id="properties-list">
                   {properties.map(prop => (
                     <option key={prop} value={prop} />
                   ))}
                 </datalist>
-                {errors.property && <p className="text-red-600 dark:text-red-400 text-xs mt-1">{errors.property}</p>}
+                {errors.property && <p className="text-red-500 text-xs">{errors.property}</p>}
               </div>
 
               {/* Unit */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium mb-2">
                   Unit *
                 </label>
                 <input
                   type="text"
                   value={formData.unit}
-                  onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-                  className="w-full px-4 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g., 101"
+                  onChange={(e) =>
+                    setFormData(prev => ({ ...prev, unit: e.target.value }))
+                  }
+                  className="w-full px-4 py-2 rounded-lg border"
                 />
-                {errors.unit && <p className="text-red-600 dark:text-red-400 text-xs mt-1">{errors.unit}</p>}
+                {errors.unit && <p className="text-red-500 text-xs">{errors.unit}</p>}
               </div>
 
               {/* Tenant Name */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium mb-2">
                   Tenant Name *
                 </label>
                 <input
                   type="text"
                   value={formData.tenantName}
-                  onChange={(e) => setFormData({ ...formData, tenantName: e.target.value })}
-                  className="w-full px-4 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter tenant name"
+                  onChange={(e) =>
+                    setFormData(prev => ({ ...prev, tenantName: e.target.value }))
+                  }
+                  className="w-full px-4 py-2 rounded-lg border"
                 />
-                {errors.tenantName && <p className="text-red-600 dark:text-red-400 text-xs mt-1">{errors.tenantName}</p>}
+                {errors.tenantName && <p className="text-red-500 text-xs">{errors.tenantName}</p>}
               </div>
 
               {/* Tenant Email */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium mb-2">
                   Tenant Email *
                 </label>
                 <input
                   type="email"
                   value={formData.tenantEmail}
-                  onChange={(e) => setFormData({ ...formData, tenantEmail: e.target.value })}
-                  className="w-full px-4 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="tenant@example.com"
+                  onChange={(e) =>
+                    setFormData(prev => ({ ...prev, tenantEmail: e.target.value }))
+                  }
+                  className="w-full px-4 py-2 rounded-lg border"
                 />
-                {errors.tenantEmail && <p className="text-red-600 dark:text-red-400 text-xs mt-1">{errors.tenantEmail}</p>}
+                {errors.tenantEmail && <p className="text-red-500 text-xs">{errors.tenantEmail}</p>}
               </div>
 
               {/* COI Name */}
               <div className="col-span-2">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium mb-2">
                   COI Name *
                 </label>
                 <input
                   type="text"
                   value={formData.coiName}
-                  onChange={(e) => setFormData({ ...formData, coiName: e.target.value })}
-                  className="w-full px-4 py-2 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="e.g., Tenant_Property_COI_2026"
+                  onChange={(e) =>
+                    setFormData(prev => ({ ...prev, coiName: e.target.value }))
+                  }
+                  className="w-full px-4 py-2 rounded-lg border"
                 />
-                {errors.coiName && <p className="text-red-600 dark:text-red-400 text-xs mt-1">{errors.coiName}</p>}
+                {errors.coiName && <p className="text-red-500 text-xs">{errors.coiName}</p>}
               </div>
 
               {/* Expiry Date */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium mb-2">
                   Expiry Date *
                 </label>
                 <input
                   type="date"
                   value={formData.expiryDate}
-                  onChange={(e) => setFormData({ ...formData, expiryDate: e.target.value })}
-                  className="w-full px-4 py-2 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onChange={(e) =>
+                    setFormData(prev => ({ ...prev, expiryDate: e.target.value }))
+                  }
+                  className="w-full px-4 py-2 rounded-lg border"
                 />
-                {errors.expiryDate && <p className="text-red-600 dark:text-red-400 text-xs mt-1">{errors.expiryDate}</p>}
+                {errors.expiryDate && <p className="text-red-500 text-xs">{errors.expiryDate}</p>}
               </div>
 
               {/* Status */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label className="block text-sm font-medium mb-2">
                   Status
                 </label>
                 <select
                   value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                  className="w-full px-4 py-2 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onChange={(e) =>
+                    setFormData(prev => ({
+                      ...prev,
+                      status: e.target.value as COI['status'],
+                    }))
+                  }
+                  className="w-full px-4 py-2 rounded-lg border"
                 >
                   <option value="Active">Active</option>
                   <option value="Expired">Expired</option>
@@ -226,17 +244,17 @@ export const AddEditCOIModal = ({
             </div>
 
             {/* Buttons */}
-            <div className="flex gap-3 justify-end mt-6">
+            <div className="flex justify-end gap-3 mt-6">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                className="px-6 py-2 rounded-lg bg-gray-200"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-6 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+                className="px-6 py-2 rounded-lg bg-blue-600 text-white"
               >
                 {initialData ? 'Update' : 'Add'} COI
               </button>

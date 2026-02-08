@@ -1,6 +1,32 @@
 import { create } from 'zustand'
-import { COI, FilterOptions, DateRangeFilter, SortConfig } from '@types/coi'
+import type {
+  COI,
+  FilterOptions,
+  DateRangeFilter,
+  SortConfig,
+} from 'src/types/coi'
 import { MOCK_COIS } from '@utils/mockData'
+
+/* -------------------- DEFAULTS -------------------- */
+
+const defaultFilters: FilterOptions = {
+  properties: [],
+  status: 'All',
+  expiryFilter: 'All',
+  searchQuery: '',
+}
+
+const defaultDateRange: DateRangeFilter = {
+  startDate: null,
+  endDate: null,
+}
+
+const defaultSortConfig: SortConfig = {
+  key: null,
+  direction: 'asc',
+}
+
+/* -------------------- STORE -------------------- */
 
 interface COIStore {
   cois: COI[]
@@ -13,88 +39,94 @@ interface COIStore {
   rowsPerPage: number
   currentPage: number
 
-  // Actions
   addCOI: (coi: Omit<COI, 'id' | 'createdAt'>) => void
   updateCOI: (id: number, updates: Partial<COI>) => void
   deleteCOI: (id: number) => void
+
   setFilters: (filters: Partial<FilterOptions>) => void
   setDateRangeFilter: (filter: DateRangeFilter) => void
   setSortConfig: (config: SortConfig) => void
+
   setSelectedRows: (rows: number[]) => void
   toggleRowSelection: (id: number) => void
   selectAllRows: (ids: number[]) => void
   clearSelection: () => void
+
   setDarkMode: (isDark: boolean) => void
   setRowsPerPage: (rows: number) => void
   setCurrentPage: (page: number) => void
+
   applyFilters: () => void
   resetFilters: () => void
   loadFromLocalStorage: () => void
 }
 
-const getFilteredCOIs = (cois: COI[], filters: FilterOptions, dateRange: DateRangeFilter, sortConfig: SortConfig): COI[] => {
+/* -------------------- FILTER LOGIC -------------------- */
+
+const getFilteredCOIs = (
+  cois: COI[],
+  filters: FilterOptions,
+  dateRange: DateRangeFilter,
+  sortConfig: SortConfig
+): COI[] => {
   let result = [...cois]
 
-  // Apply property filter
-  if (filters.properties.length > 0) {
-    result = result.filter(coi => filters.properties.includes(coi.property))
+  if (filters.properties.length) {
+    result = result.filter(coi =>
+      filters.properties.includes(coi.property)
+    )
   }
 
-  // Apply status filter
   if (filters.status !== 'All') {
     result = result.filter(coi => coi.status === filters.status)
   }
 
-  // Apply search filter
   if (filters.searchQuery.trim()) {
-    const query = filters.searchQuery.toLowerCase()
+    const q = filters.searchQuery.toLowerCase()
     result = result.filter(coi =>
-      coi.property.toLowerCase().includes(query) ||
-      coi.tenantName.toLowerCase().includes(query) ||
-      coi.unit.toLowerCase().includes(query) ||
-      coi.coiName.toLowerCase().includes(query)
+      coi.property.toLowerCase().includes(q) ||
+      coi.tenantName.toLowerCase().includes(q) ||
+      coi.unit.toLowerCase().includes(q) ||
+      coi.coiName.toLowerCase().includes(q)
     )
   }
 
-  // Apply expiry date filter
   if (filters.expiryFilter !== 'All') {
     const today = new Date()
-    const days30 = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000)
-    const days60 = new Date(today.getTime() + 60 * 24 * 60 * 60 * 1000)
-    const days90 = new Date(today.getTime() + 90 * 24 * 60 * 60 * 1000)
+    const ranges = {
+      '30days': 30,
+      '60days': 60,
+      '90days': 90,
+    } as const
 
     result = result.filter(coi => {
-      const expiryDate = new Date(coi.expiryDate)
-      switch (filters.expiryFilter) {
-        case '30days':
-          return expiryDate <= days30 && expiryDate >= today
-        case '60days':
-          return expiryDate <= days60 && expiryDate >= today
-        case '90days':
-          return expiryDate <= days90 && expiryDate >= today
-        case 'Expired':
-          return expiryDate < today
-        default:
-          return true
+      const expiry = new Date(coi.expiryDate)
+
+      if (filters.expiryFilter === 'Expired') {
+        return expiry < today
       }
+
+      const days = ranges[filters.expiryFilter as keyof typeof ranges]
+      if (!days) return true
+
+      const limit = new Date(today.getTime() + days * 86400000)
+      return expiry >= today && expiry <= limit
     })
   }
 
-  // Apply date range filter
   if (dateRange.startDate || dateRange.endDate) {
     result = result.filter(coi => {
-      const expiryDate = new Date(coi.expiryDate)
-      if (dateRange.startDate && expiryDate < new Date(dateRange.startDate)) return false
-      if (dateRange.endDate && expiryDate > new Date(dateRange.endDate)) return false
+      const d = new Date(coi.expiryDate)
+      if (dateRange.startDate && d < new Date(dateRange.startDate)) return false
+      if (dateRange.endDate && d > new Date(dateRange.endDate)) return false
       return true
     })
   }
 
-  // Apply sorting
   if (sortConfig.key) {
     result.sort((a, b) => {
-      const aVal = a[sortConfig.key as keyof COI]
-      const bVal = b[sortConfig.key as keyof COI]
+      const aVal = a[sortConfig.key!]
+      const bVal = b[sortConfig.key!]
 
       if (typeof aVal === 'string' && typeof bVal === 'string') {
         return sortConfig.direction === 'asc'
@@ -102,154 +134,211 @@ const getFilteredCOIs = (cois: COI[], filters: FilterOptions, dateRange: DateRan
           : bVal.localeCompare(aVal)
       }
 
-      if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1
-      if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1
-      return 0
+      return sortConfig.direction === 'asc'
+        ? Number(aVal) - Number(bVal)
+        : Number(bVal) - Number(aVal)
     })
   }
 
   return result
 }
 
-export const useCOIStore = create<COIStore>((set, get) => ({
-  cois: MOCK_COIS,
-  filteredCOIs: MOCK_COIS,
-  selectedRows: [],
-  filters: {
-    properties: [],
-    status: 'All',
-    expiryFilter: 'All',
-    searchQuery: '',
-  },
-  dateRangeFilter: {
-    startDate: null,
-    endDate: null,
-  },
-  sortConfig: {
-    key: null,
-    direction: 'asc',
-  },
-  isDarkMode: false,
-  rowsPerPage: 10,
-  currentPage: 1,
+/* -------------------- STORE -------------------- */
 
-  addCOI: (newCOI) => {
-    set((state) => {
-      const cois = [
-        ...state.cois,
-        {
-          ...newCOI,
-          id: Math.max(...state.cois.map(c => c.id), 0) + 1,
-          createdAt: new Date().toISOString(),
-        },
-      ]
-      const filteredCOIs = getFilteredCOIs(cois, state.filters, state.dateRangeFilter, state.sortConfig)
-      return { cois, filteredCOIs }
-    })
-  },
+export const useCOIStore = create<COIStore>((set, get) => {
+  let initialCOIs = MOCK_COIS
+  let initialDarkMode = false
 
-  updateCOI: (id, updates) => {
-    set((state) => {
-      const cois = state.cois.map(coi => (coi.id === id ? { ...coi, ...updates } : coi))
-      const filteredCOIs = getFilteredCOIs(cois, state.filters, state.dateRangeFilter, state.sortConfig)
-      return { cois, filteredCOIs }
-    })
-  },
-
-  deleteCOI: (id) => {
-    set((state) => {
-      const cois = state.cois.filter(coi => coi.id !== id)
-      const filteredCOIs = getFilteredCOIs(cois, state.filters, state.dateRangeFilter, state.sortConfig)
-      const selectedRows = state.selectedRows.filter(rowId => rowId !== id)
-      return { cois, filteredCOIs, selectedRows }
-    })
-  },
-
-  setFilters: (filters) => {
-    set((state) => {
-      const newFilters = { ...state.filters, ...filters }
-      const filteredCOIs = getFilteredCOIs(state.cois, newFilters, state.dateRangeFilter, state.sortConfig)
-      return { filters: newFilters, filteredCOIs, currentPage: 1 }
-    })
-  },
-
-  setDateRangeFilter: (dateRangeFilter) => {
-    set((state) => {
-      const filteredCOIs = getFilteredCOIs(state.cois, state.filters, dateRangeFilter, state.sortConfig)
-      return { dateRangeFilter, filteredCOIs, currentPage: 1 }
-    })
-  },
-
-  setSortConfig: (sortConfig) => {
-    set((state) => {
-      const filteredCOIs = getFilteredCOIs(state.cois, state.filters, state.dateRangeFilter, sortConfig)
-      return { sortConfig, filteredCOIs }
-    })
-  },
-
-  setSelectedRows: (rows) => set({ selectedRows: rows }),
-
-  toggleRowSelection: (id) => {
-    set((state) => {
-      const selectedRows = state.selectedRows.includes(id)
-        ? state.selectedRows.filter(rowId => rowId !== id)
-        : [...state.selectedRows, id]
-      return { selectedRows }
-    })
-  },
-
-  selectAllRows: (ids) => set({ selectedRows: ids }),
-
-  clearSelection: () => set({ selectedRows: [] }),
-
-  setDarkMode: (isDark) => set({ isDarkMode: isDark }),
-
-  setRowsPerPage: (rows) => set({ rowsPerPage: rows, currentPage: 1 }),
-
-  setCurrentPage: (page) => set({ currentPage: page }),
-
-  applyFilters: () => {
-    const state = get()
-    const filteredCOIs = getFilteredCOIs(state.cois, state.filters, state.dateRangeFilter, state.sortConfig)
-    set({ filteredCOIs, currentPage: 1 })
-  },
-
-  resetFilters: () => {
-    set((state) => {
-      const filters = {
-        properties: [],
-        status: 'All',
-        expiryFilter: 'All',
-        searchQuery: '',
+  try {
+    const saved = localStorage.getItem('coi-store')
+    if (saved) {
+      const parsed = JSON.parse(saved)
+      if (Array.isArray(parsed.cois)) initialCOIs = parsed.cois
+      if (typeof parsed.isDarkMode === 'boolean') {
+        initialDarkMode = parsed.isDarkMode
       }
-      const dateRangeFilter = { startDate: null, endDate: null }
-      const sortConfig = { key: null, direction: 'asc' as const }
-      const filteredCOIs = getFilteredCOIs(state.cois, filters, dateRangeFilter, sortConfig)
-      return { filters, dateRangeFilter, sortConfig, filteredCOIs, currentPage: 1 }
-    })
-  },
-
-  loadFromLocalStorage: () => {
-    try {
-      const saved = localStorage.getItem('coi-store')
-      if (saved) {
-        const { cois, isDarkMode } = JSON.parse(saved)
-        set((state) => ({
-          cois,
-          isDarkMode,
-          filteredCOIs: getFilteredCOIs(cois, state.filters, state.dateRangeFilter, state.sortConfig),
-        }))
-      }
-    } catch (error) {
-      console.error('Failed to load from localStorage:', error)
     }
-  },
-}))
+  } catch {}
 
-// Subscribe to changes and save to localStorage
-useCOIStore.subscribe(
-  (state) => ({ cois: state.cois, isDarkMode: state.isDarkMode }),
-  (newState) => {
-    localStorage.setItem('coi-store', JSON.stringify(newState))
+  return {
+    cois: initialCOIs,
+    filteredCOIs: getFilteredCOIs(
+      initialCOIs,
+      defaultFilters,
+      defaultDateRange,
+      defaultSortConfig
+    ),
+    selectedRows: [],
+    filters: defaultFilters,
+    dateRangeFilter: defaultDateRange,
+    sortConfig: defaultSortConfig,
+    isDarkMode: initialDarkMode,
+    rowsPerPage: 10,
+    currentPage: 1,
+
+    addCOI: (newCOI) => {
+      set(state => {
+        const cois = [
+          ...state.cois,
+          {
+            ...newCOI,
+            id: Math.max(0, ...state.cois.map(c => c.id)) + 1,
+            createdAt: new Date().toISOString(),
+          },
+        ]
+        return {
+          cois,
+          filteredCOIs: getFilteredCOIs(
+            cois,
+            state.filters,
+            state.dateRangeFilter,
+            state.sortConfig
+          ),
+        }
+      })
+    },
+
+    updateCOI: (id, updates) => {
+      set(state => {
+        const cois = state.cois.map(c =>
+          c.id === id ? { ...c, ...updates } : c
+        )
+        return {
+          cois,
+          filteredCOIs: getFilteredCOIs(
+            cois,
+            state.filters,
+            state.dateRangeFilter,
+            state.sortConfig
+          ),
+        }
+      })
+    },
+
+    deleteCOI: (id) => {
+      set(state => {
+        const cois = state.cois.filter(c => c.id !== id)
+        return {
+          cois,
+          selectedRows: state.selectedRows.filter(r => r !== id),
+          filteredCOIs: getFilteredCOIs(
+            cois,
+            state.filters,
+            state.dateRangeFilter,
+            state.sortConfig
+          ),
+        }
+      })
+    },
+
+    setFilters: (filters) => {
+      set(state => {
+        const next: FilterOptions = { ...state.filters, ...filters }
+        return {
+          filters: next,
+          currentPage: 1,
+          filteredCOIs: getFilteredCOIs(
+            state.cois,
+            next,
+            state.dateRangeFilter,
+            state.sortConfig
+          ),
+        }
+      })
+    },
+
+    setDateRangeFilter: (dateRangeFilter) =>
+      set(state => ({
+        dateRangeFilter,
+        currentPage: 1,
+        filteredCOIs: getFilteredCOIs(
+          state.cois,
+          state.filters,
+          dateRangeFilter,
+          state.sortConfig
+        ),
+      })),
+
+    setSortConfig: (sortConfig) =>
+      set(state => ({
+        sortConfig,
+        filteredCOIs: getFilteredCOIs(
+          state.cois,
+          state.filters,
+          state.dateRangeFilter,
+          sortConfig
+        ),
+      })),
+
+    setSelectedRows: (rows) => set({ selectedRows: rows }),
+    toggleRowSelection: (id) =>
+      set(state => ({
+        selectedRows: state.selectedRows.includes(id)
+          ? state.selectedRows.filter(r => r !== id)
+          : [...state.selectedRows, id],
+      })),
+    selectAllRows: (ids) => set({ selectedRows: ids }),
+    clearSelection: () => set({ selectedRows: [] }),
+
+    setDarkMode: (isDarkMode) => set({ isDarkMode }),
+    setRowsPerPage: (rowsPerPage) => set({ rowsPerPage, currentPage: 1 }),
+    setCurrentPage: (currentPage) => set({ currentPage }),
+
+    applyFilters: () => {
+      const state = get()
+      set({
+        currentPage: 1,
+        filteredCOIs: getFilteredCOIs(
+          state.cois,
+          state.filters,
+          state.dateRangeFilter,
+          state.sortConfig
+        ),
+      })
+    },
+
+    resetFilters: () => {
+      const state = get()
+      set({
+        filters: defaultFilters,
+        dateRangeFilter: defaultDateRange,
+        sortConfig: defaultSortConfig,
+        currentPage: 1,
+        filteredCOIs: getFilteredCOIs(
+          state.cois,
+          defaultFilters,
+          defaultDateRange,
+          defaultSortConfig
+        ),
+      })
+    },
+
+    loadFromLocalStorage: () => {
+      const saved = localStorage.getItem('coi-store')
+      if (!saved) return
+      const { cois, isDarkMode } = JSON.parse(saved)
+      set(state => ({
+        cois,
+        isDarkMode,
+        filteredCOIs: getFilteredCOIs(
+          cois,
+          state.filters,
+          state.dateRangeFilter,
+          state.sortConfig
+        ),
+      }))
+    },
   }
-)
+})
+
+/* -------------------- PERSIST -------------------- */
+
+useCOIStore.subscribe((state) => {
+  localStorage.setItem(
+    'coi-store',
+    JSON.stringify({
+      cois: state.cois,
+      isDarkMode: state.isDarkMode,
+    })
+  )
+})

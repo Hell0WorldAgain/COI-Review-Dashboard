@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { CheckCircle, AlertCircle, XCircle, Clock } from 'lucide-react'
+import { CheckCircle, XCircle, Clock } from 'lucide-react'
 import {
   Sidebar,
   TopBar,
@@ -8,10 +8,11 @@ import {
   COITable,
   Pagination,
   AddEditCOIModal,
+  COIDetailModal,
 } from '@components/index'
 import { useCOIStore } from '@store/coiStore'
 import { getTotalStats, getUniqueProperties } from '@utils/index'
-import { COI } from '@types/coi'
+import { COI } from 'src/types/coi'
 
 export const Dashboard = () => {
   const {
@@ -31,8 +32,10 @@ export const Dashboard = () => {
     loadFromLocalStorage,
   } = useCOIStore()
 
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
   const [editingCOI, setEditingCOI] = useState<COI | undefined>()
+  const [selectedDetailCOI, setSelectedDetailCOI] = useState<COI | null>(null)
 
   useEffect(() => {
     loadFromLocalStorage()
@@ -47,6 +50,7 @@ export const Dashboard = () => {
   const endIndex = startIndex + rowsPerPage
   const paginatedCOIs = filteredCOIs.slice(startIndex, endIndex)
 
+  // Calculate stats from ALL cois, not just filtered
   const stats = getTotalStats(cois)
   const properties = getUniqueProperties(cois)
 
@@ -57,23 +61,31 @@ export const Dashboard = () => {
     } else {
       addCOI(formData)
     }
-    setIsModalOpen(false)
+    setIsAddModalOpen(false)
   }
 
   const handleEditCOI = (coi: COI) => {
-    setEditingCOI(coi)
-    setIsModalOpen(true)
+    setSelectedDetailCOI(coi)
+    setIsDetailModalOpen(true)
+  }
+
+  const handleUpdateCOI = (coi: COI) => {
+    updateCOI(coi.id, coi)
+    setIsDetailModalOpen(false)
+  }
+
+  // Direct update handler for inline edits (status, expiry date)
+  const handleInlineUpdate = (id: number, updates: Partial<COI>) => {
+    updateCOI(id, updates)
   }
 
   const handleDeleteCOI = (id: number) => {
-    if (window.confirm('Are you sure you want to delete this COI?')) {
-      deleteCOI(id)
-    }
+    deleteCOI(id)
   }
 
-  const handleOpenModal = () => {
+  const handleOpenAddModal = () => {
     setEditingCOI(undefined)
-    setIsModalOpen(true)
+    setIsAddModalOpen(true)
   }
 
   return (
@@ -117,12 +129,13 @@ export const Dashboard = () => {
           </div>
 
           {/* Filter Bar */}
-          <FilterBar onAddClick={handleOpenModal} />
+          <FilterBar onAddClick={handleOpenAddModal} />
 
           {/* Table */}
           <COITable
             cois={paginatedCOIs}
             onEdit={handleEditCOI}
+            onUpdate={handleInlineUpdate}
             onDelete={handleDeleteCOI}
             onSelectRow={toggleRowSelection}
             onSelectAll={selectAllRows}
@@ -143,16 +156,25 @@ export const Dashboard = () => {
         </main>
       </div>
 
-      {/* Modal */}
+      {/* Add/Edit Modal */}
       <AddEditCOIModal
-        isOpen={isModalOpen}
+        isOpen={isAddModalOpen}
         onClose={() => {
-          setIsModalOpen(false)
+          setIsAddModalOpen(false)
           setEditingCOI(undefined)
         }}
         onSubmit={handleAddCOI}
         initialData={editingCOI}
         properties={properties}
+      />
+
+      {/* Detail Modal */}
+      <COIDetailModal
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+        coi={selectedDetailCOI}
+        onUpdate={handleUpdateCOI}
+        onDelete={handleDeleteCOI}
       />
     </div>
   )
