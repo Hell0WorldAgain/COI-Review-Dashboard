@@ -13,7 +13,6 @@ export const FilterBar = ({ onAddClick }: FilterBarProps) => {
     cois,
     filters,
     setFilters,
-    applyFilters,
   } = useCOIStore()
 
   const [searchInput, setSearchInput] = useState(filters.searchQuery)
