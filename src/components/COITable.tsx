@@ -1,5 +1,5 @@
 import { MoreVertical, Edit2, Trash2, ChevronUp, ChevronDown } from 'lucide-react'
-import { COI } from 'src/types/coi.ts'
+import { COI } from 'src/types/coi'
 import { useCOIStore } from '@store/coiStore'
 import { formatDate, getStatusColor, truncateText } from '@utils/index'
 import { useState } from 'react'
@@ -213,6 +213,7 @@ export const COITable = ({
                         <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-2xl z-50">
                           <button
                             onClick={() => {
+                              console.log('Edit clicked for COI:', coi.id)
                               onEdit(coi)
                               setOpenMenuId(null)
                             }}
@@ -223,7 +224,9 @@ export const COITable = ({
                           </button>
                           <button
                             onClick={() => {
+                              console.log('Send Reminder clicked for COI:', coi.id)
                               if (window.confirm('Send reminder to: ' + coi.tenantEmail + '?')) {
+                                console.log('Calling onUpdate with reminderStatus')
                                 onUpdate(coi.id, { reminderStatus: 'Sent (30d)' })
                                 alert(`Reminder sent to: ${coi.tenantEmail}`)
                               }
@@ -236,6 +239,7 @@ export const COITable = ({
                           </button>
                           <button
                             onClick={() => {
+                              console.log('Delete clicked for COI:', coi.id)
                               if (window.confirm('Are you sure you want to delete this COI?')) {
                                 onDelete(coi.id)
                               }

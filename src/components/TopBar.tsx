@@ -24,7 +24,6 @@ export const TopBar = () => {
     
     const selectedCOIs = cois.filter(c => selectedRows.includes(c.id))
     
-    // Update reminder status for all selected COIs
     selectedCOIs.forEach(coi => {
       let reminderStatus = 'Not Sent'
       if (type === '30-day') {
@@ -32,10 +31,9 @@ export const TopBar = () => {
       } else if (type === '60-day') {
         reminderStatus = 'Sent (60d)'
       } else if (type === 'Immediate') {
-        reminderStatus = 'Sent (30d)' // Default to 30d for immediate
+        reminderStatus = 'Sent (30d)' 
       }
       
-      // Update the COI with new reminder status
       updateCOI(coi.id, {
         ...coi,
         reminderStatus: reminderStatus as any,
@@ -50,15 +48,12 @@ export const TopBar = () => {
 
   return (
     <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-8 py-4 flex items-center justify-between sticky top-0 z-10">
-      {/* Left section - Title */}
       <div>
-        <h1 className="text-xl font-bold text-gray-900 dark:text-white">COI Review Dashboard</h1>
-        <p className="text-xs text-gray-500 dark:text-gray-400">Overview of Certificate of Insurance</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">COI Review Dashboard</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400">Overview of all Certificate of Insurance</p>
       </div>
 
-      {/* Right section - Actions */}
       <div className="flex items-center gap-4">
-        {/* Bulk Reminder Button */}
         <div className="relative">
           <button
             onClick={() => setShowReminderMenu(!showReminderMenu)}
@@ -105,7 +100,6 @@ export const TopBar = () => {
           Help
         </button>
 
-        {/* Icons */}
         <div className="flex items-center gap-2 border-l border-gray-200 dark:border-gray-800 pl-4">
           <button
             onClick={toggleDarkMode}
@@ -124,7 +118,6 @@ export const TopBar = () => {
             <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
           </button>
 
-          {/* User Menu */}
           <div className="relative">
             <button
               onClick={() => setShowUserMenu(!showUserMenu)}
@@ -133,15 +126,15 @@ export const TopBar = () => {
               <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
                 <User className="w-4 h-4 text-white" />
               </div>
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Shubham</span>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Abhishek</span>
               <ChevronDown className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             </button>
 
             {showUserMenu && (
               <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-20">
                 <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">Shubham</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">shubham@example.com</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">Abhishek</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">abhi@shek.com</p>
                 </div>
                 <button className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
                   Profile Settings

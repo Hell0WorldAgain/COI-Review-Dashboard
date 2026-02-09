@@ -44,13 +44,11 @@ export const Dashboard = () => {
     }
   }, [isDarkMode, loadFromLocalStorage])
 
-  // Calculate pagination
   const totalPages = Math.ceil(filteredCOIs.length / rowsPerPage)
   const startIndex = (currentPage - 1) * rowsPerPage
   const endIndex = startIndex + rowsPerPage
   const paginatedCOIs = filteredCOIs.slice(startIndex, endIndex)
 
-  // Calculate stats from ALL cois, not just filtered
   const stats = getTotalStats(cois)
   const properties = getUniqueProperties(cois)
 
@@ -74,7 +72,6 @@ export const Dashboard = () => {
     setIsDetailModalOpen(false)
   }
 
-  // Direct update handler for inline edits (status, expiry date)
   const handleInlineUpdate = (id: number, updates: Partial<COI>) => {
     updateCOI(id, updates)
   }
@@ -90,17 +87,13 @@ export const Dashboard = () => {
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-950">
-      {/* Sidebar */}
       <Sidebar />
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top Bar */}
         <TopBar />
 
-        {/* Page Content */}
         <main className="flex-1 overflow-y-auto p-8">
-          {/* Statistics Cards */}
+  
           <div className="grid grid-cols-4 gap-6 mb-8">
             <StatisticsCard
               icon="📋"
@@ -128,10 +121,8 @@ export const Dashboard = () => {
             />
           </div>
 
-          {/* Filter Bar */}
           <FilterBar onAddClick={handleOpenAddModal} />
 
-          {/* Table */}
           <COITable
             cois={paginatedCOIs}
             onEdit={handleEditCOI}
@@ -142,7 +133,6 @@ export const Dashboard = () => {
             selectedRows={selectedRows}
           />
 
-          {/* Pagination */}
           <div className="mt-6">
             <Pagination
               currentPage={currentPage}
@@ -156,7 +146,6 @@ export const Dashboard = () => {
         </main>
       </div>
 
-      {/* Add/Edit Modal */}
       <AddEditCOIModal
         isOpen={isAddModalOpen}
         onClose={() => {
@@ -168,7 +157,6 @@ export const Dashboard = () => {
         properties={properties}
       />
 
-      {/* Detail Modal */}
       <COIDetailModal
         isOpen={isDetailModalOpen}
         onClose={() => setIsDetailModalOpen(false)}

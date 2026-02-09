@@ -109,7 +109,13 @@ export const getTotalStats = (cois: COI[]) => {
   const total = cois.length
   const accepted = cois.filter(c => c.status === 'Active').length
   const rejected = cois.filter(c => c.status === 'Rejected' || c.status === 'Expired').length
+  
+  // Count both actual expiring dates AND items with "Expiring Soon" status
   const expiringIn30Days = cois.filter(c => {
+    // If status is explicitly "Expiring Soon", count it
+    if (c.status === 'Expiring Soon') return true
+    
+    // Also check actual date
     const days = calculateDaysUntilExpiry(c.expiryDate)
     return days > 0 && days <= 30
   }).length

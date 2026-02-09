@@ -92,16 +92,13 @@ export const AddEditCOIModal = ({
 
   return (
     <>
-      {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black bg-opacity-50 z-40"
         onClick={onClose}
       />
 
-      {/* Modal */}
       <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-          {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">
               {initialData ? 'Edit COI' : 'Add New COI'}
@@ -114,10 +111,8 @@ export const AddEditCOIModal = ({
             </button>
           </div>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              {/* Property */}
               <div>
                 <label className="block text-sm font-medium mb-2">
                   Property *
@@ -129,7 +124,7 @@ export const AddEditCOIModal = ({
                   onChange={(e) =>
                     setFormData(prev => ({ ...prev, property: e.target.value }))
                   }
-                  className="w-full px-4 py-2 rounded-lg border"
+                  className="w-full px-4 py-2 rounded-lg border bg-gray-50 dark:bg-gray-700"
                 />
                 <datalist id="properties-list">
                   {properties.map(prop => (
@@ -139,7 +134,6 @@ export const AddEditCOIModal = ({
                 {errors.property && <p className="text-red-500 text-xs">{errors.property}</p>}
               </div>
 
-              {/* Unit */}
               <div>
                 <label className="block text-sm font-medium mb-2">
                   Unit *
@@ -150,12 +144,11 @@ export const AddEditCOIModal = ({
                   onChange={(e) =>
                     setFormData(prev => ({ ...prev, unit: e.target.value }))
                   }
-                  className="w-full px-4 py-2 rounded-lg border"
+                  className="w-full px-4 py-2 rounded-lg border bg-gray-50 dark:bg-gray-700"
                 />
                 {errors.unit && <p className="text-red-500 text-xs">{errors.unit}</p>}
               </div>
 
-              {/* Tenant Name */}
               <div>
                 <label className="block text-sm font-medium mb-2">
                   Tenant Name *
@@ -166,12 +159,11 @@ export const AddEditCOIModal = ({
                   onChange={(e) =>
                     setFormData(prev => ({ ...prev, tenantName: e.target.value }))
                   }
-                  className="w-full px-4 py-2 rounded-lg border"
+                  className="w-full px-4 py-2 rounded-lg border bg-gray-50 dark:bg-gray-700"
                 />
                 {errors.tenantName && <p className="text-red-500 text-xs">{errors.tenantName}</p>}
               </div>
 
-              {/* Tenant Email */}
               <div>
                 <label className="block text-sm font-medium mb-2">
                   Tenant Email *
@@ -182,12 +174,11 @@ export const AddEditCOIModal = ({
                   onChange={(e) =>
                     setFormData(prev => ({ ...prev, tenantEmail: e.target.value }))
                   }
-                  className="w-full px-4 py-2 rounded-lg border"
+                  className="w-full px-4 py-2 rounded-lg border bg-gray-50 dark:bg-gray-700"
                 />
                 {errors.tenantEmail && <p className="text-red-500 text-xs">{errors.tenantEmail}</p>}
               </div>
 
-              {/* COI Name */}
               <div className="col-span-2">
                 <label className="block text-sm font-medium mb-2">
                   COI Name *
@@ -198,12 +189,11 @@ export const AddEditCOIModal = ({
                   onChange={(e) =>
                     setFormData(prev => ({ ...prev, coiName: e.target.value }))
                   }
-                  className="w-full px-4 py-2 rounded-lg border"
+                  className="w-full px-4 py-2 rounded-lg border bg-gray-50 dark:bg-gray-700"
                 />
                 {errors.coiName && <p className="text-red-500 text-xs">{errors.coiName}</p>}
               </div>
 
-              {/* Expiry Date */}
               <div>
                 <label className="block text-sm font-medium mb-2">
                   Expiry Date *
@@ -214,12 +204,11 @@ export const AddEditCOIModal = ({
                   onChange={(e) =>
                     setFormData(prev => ({ ...prev, expiryDate: e.target.value }))
                   }
-                  className="w-full px-4 py-2 rounded-lg border"
+                  className="w-full px-4 py-2 rounded-lg border bg-gray-50 dark:bg-gray-700"
                 />
                 {errors.expiryDate && <p className="text-red-500 text-xs">{errors.expiryDate}</p>}
               </div>
 
-              {/* Status */}
               <div>
                 <label className="block text-sm font-medium mb-2">
                   Status
@@ -232,7 +221,7 @@ export const AddEditCOIModal = ({
                       status: e.target.value as COI['status'],
                     }))
                   }
-                  className="w-full px-4 py-2 rounded-lg border"
+                  className="w-full px-4 py-2 rounded-lg border bg-gray-50 dark:bg-gray-700"
                 >
                   <option value="Active">Active</option>
                   <option value="Expired">Expired</option>
@@ -243,12 +232,11 @@ export const AddEditCOIModal = ({
               </div>
             </div>
 
-            {/* Buttons */}
             <div className="flex justify-end gap-3 mt-6">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-2 rounded-lg bg-gray-200"
+                className="px-6 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
               >
                 Cancel
               </button>

@@ -1,6 +1,6 @@
 import { X, Mail, Trash2 } from 'lucide-react'
 import { COI } from 'src/types/coi'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 interface COIDetailModalProps {
   isOpen: boolean
@@ -19,8 +19,16 @@ export const COIDetailModal = ({
 }: COIDetailModalProps) => {
   const [formData, setFormData] = useState<COI | null>(coi)
 
+  useEffect(() => {
+    if (coi && isOpen) {
+      console.log('Modal opened with COI:', coi)
+      setFormData(coi)
+    }
+  }, [coi, isOpen])
+
   const handleUpdate = () => {
     if (formData) {
+      console.log('Updating COI:', formData)
       onUpdate(formData)
       onClose()
     }
@@ -28,28 +36,27 @@ export const COIDetailModal = ({
 
   const handleSendReminder = () => {
     if (formData) {
+      console.log('Send Reminder for:', formData.id)
       alert(`Reminder sent to: ${formData.tenantEmail}`)
+      setFormData({ ...formData, reminderStatus: 'Sent (30d)' })
     }
   }
 
   const handleDelete = () => {
     if (formData && window.confirm('Are you sure you want to delete this COI?')) {
+      console.log('Deleting COI:', formData.id)
       onDelete(formData.id)
       onClose()
     }
   }
 
-  if (!isOpen || !formData) return null
-
-  return (
+  return isOpen && formData ? (
     <>
-      {/* Backdrop */}
       <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={onClose} />
 
-      {/* Modal */}
       <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-          {/* Header */}
+
           <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">COI Details</h2>
             <button
@@ -60,10 +67,10 @@ export const COIDetailModal = ({
             </button>
           </div>
 
-          {/* Content */}
+
           <div className="p-6 space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              {/* Property */}
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Property
@@ -73,7 +80,6 @@ export const COIDetailModal = ({
                 </p>
               </div>
 
-              {/* Unit */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Unit
@@ -83,7 +89,6 @@ export const COIDetailModal = ({
                 </p>
               </div>
 
-              {/* Tenant Name */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Tenant Name
@@ -93,7 +98,6 @@ export const COIDetailModal = ({
                 </p>
               </div>
 
-              {/* Tenant Email */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Tenant Email
@@ -103,7 +107,6 @@ export const COIDetailModal = ({
                 </p>
               </div>
 
-              {/* COI Name */}
               <div className="col-span-2">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   COI Name
@@ -113,7 +116,6 @@ export const COIDetailModal = ({
                 </p>
               </div>
 
-              {/* Expiry Date */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Expiry Date
@@ -126,7 +128,6 @@ export const COIDetailModal = ({
                 />
               </div>
 
-              {/* Status */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Status
@@ -144,7 +145,6 @@ export const COIDetailModal = ({
                 </select>
               </div>
 
-              {/* Reminder Status */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Reminder Status
@@ -154,7 +154,6 @@ export const COIDetailModal = ({
                 </p>
               </div>
 
-              {/* Created At */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Created Date
@@ -166,10 +165,8 @@ export const COIDetailModal = ({
             </div>
           </div>
 
-          {/* Footer */}
           <div className="border-t border-gray-200 dark:border-gray-700 p-6 flex gap-3 justify-between">
             <div className="flex gap-3">
-              {/* Send Reminder Button */}
               <button
                 onClick={handleSendReminder}
                 className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors flex items-center gap-2"
@@ -178,7 +175,6 @@ export const COIDetailModal = ({
                 Send Reminder
               </button>
 
-              {/* Delete Button */}
               <button
                 onClick={handleDelete}
                 className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors flex items-center gap-2"
@@ -189,7 +185,6 @@ export const COIDetailModal = ({
             </div>
 
             <div className="flex gap-3">
-              {/* Cancel Button */}
               <button
                 onClick={onClose}
                 className="px-6 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
@@ -197,7 +192,6 @@ export const COIDetailModal = ({
                 Cancel
               </button>
 
-              {/* Save Button */}
               <button
                 onClick={handleUpdate}
                 className="px-6 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
@@ -209,5 +203,5 @@ export const COIDetailModal = ({
         </div>
       </div>
     </>
-  )
+  ) : null
 }
