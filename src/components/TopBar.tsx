@@ -90,7 +90,7 @@ export const TopBar = () => {
           )}
         </div>
 
-        <button className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors flex items-center gap-2">
+        <button className="px-4 py-2 text-sm font-medium text-blue-500 dark:text-blue-100 border border-blue-500 dark:border-blue-100 hover:bg-blue-50 dark:hover:bg-blue-800 rounded-lg transition-colors flex items-center gap-2">
           <MessageCircle className="w-4 h-4" />
           Ask LegalGraph AI
         </button>

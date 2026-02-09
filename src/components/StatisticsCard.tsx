@@ -40,7 +40,6 @@ export const StatisticsCard = ({ icon, title, value, color }: StatisticsCardProp
   return (
     <div className={`${style.bg} border-l-4 ${style.border} rounded-lg p-6 transition-all hover:shadow-md`}>
       <div className="flex items-center justify-between gap-4">
-        {/* Left: Icon and Title */}
         <div className="flex items-center gap-4">
           <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg font-semibold ${style.icon}`}>
             {icon}
@@ -50,7 +49,6 @@ export const StatisticsCard = ({ icon, title, value, color }: StatisticsCardProp
           </p>
         </div>
 
-        {/* Right: Value */}
         <div>
           <p className={`text-3xl font-bold ${style.text}`}>
             {value.toLocaleString()}

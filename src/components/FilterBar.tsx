@@ -40,9 +40,7 @@ export const FilterBar = ({ onAddClick }: FilterBarProps) => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 mb-6">
       <div className="flex items-center justify-between gap-4">
-        {/* Filters Section */}
         <div className="flex items-center gap-3 flex-1">
-          {/* All Properties Dropdown */}
           <div className="relative">
             <button
               onClick={() => setShowPropertyMenu(!showPropertyMenu)}
@@ -71,7 +69,6 @@ export const FilterBar = ({ onAddClick }: FilterBarProps) => {
             )}
           </div>
 
-          {/* Status Dropdown */}
           <select
             value={filters.status}
             onChange={(e) => setFilters({ status: e.target.value as any })}
@@ -85,7 +82,6 @@ export const FilterBar = ({ onAddClick }: FilterBarProps) => {
             <option value="Not Processed">Not Processed</option>
           </select>
 
-          {/* Filter by Expiry Dropdown */}
           <select
             value={filters.expiryFilter}
             onChange={(e) => setFilters({ expiryFilter: e.target.value as any })}
@@ -99,7 +95,6 @@ export const FilterBar = ({ onAddClick }: FilterBarProps) => {
           </select>
         </div>
 
-        {/* Search Bar */}
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-600" />
           <input
@@ -111,7 +106,6 @@ export const FilterBar = ({ onAddClick }: FilterBarProps) => {
           />
         </div>
 
-        {/* Right Actions */}
         <div className="flex items-center gap-2">
           <button
             onClick={handleExport}

@@ -33,9 +33,6 @@ interface COIStore {
   loadFromLocalStorage: () => void
 }
 
-// ---------------------
-// Default constants to preserve literal types
-// ---------------------
 const DEFAULT_FILTERS: FilterOptions = {
   properties: [],
   status: 'All',
@@ -53,9 +50,6 @@ const DEFAULT_SORT: SortConfig = {
   direction: 'asc',
 }
 
-// ---------------------
-// Filtering utility
-// ---------------------
 const getFilteredCOIs = (
   cois: COI[],
   filters: FilterOptions,
@@ -64,17 +58,14 @@ const getFilteredCOIs = (
 ): COI[] => {
   let result = [...cois]
 
-  // Property filter
   if (filters.properties.length > 0) {
     result = result.filter(coi => filters.properties.includes(coi.property))
   }
 
-  // Status filter
   if (filters.status !== 'All') {
     result = result.filter(coi => coi.status === filters.status)
   }
 
-  // Search query filter
   if (filters.searchQuery.trim()) {
     const query = filters.searchQuery.toLowerCase()
     result = result.filter(coi =>
@@ -85,7 +76,6 @@ const getFilteredCOIs = (
     )
   }
 
-  // Expiry filter
   if (filters.expiryFilter !== 'All') {
     const today = new Date()
     const days30 = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000)
@@ -109,7 +99,6 @@ const getFilteredCOIs = (
     })
   }
 
-  // Date range filter
   if (dateRange.startDate || dateRange.endDate) {
     result = result.filter(coi => {
       const expiryDate = new Date(coi.expiryDate)
@@ -119,7 +108,6 @@ const getFilteredCOIs = (
     })
   }
 
-  // Sorting
   if (sortConfig.key) {
     result.sort((a, b) => {
       const aVal = a[sortConfig.key as keyof COI]
@@ -140,9 +128,7 @@ const getFilteredCOIs = (
   return result
 }
 
-// ---------------------
 // Zustand Store
-// ---------------------
 export const useCOIStore = create<COIStore>()(
   persist(
     (set, get) => ({
@@ -258,7 +244,6 @@ export const useCOIStore = create<COIStore>()(
       },
 
       loadFromLocalStorage: () => {
-        // handled by persist middleware
       },
     }),
     {

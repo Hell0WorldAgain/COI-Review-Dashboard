@@ -1,6 +1,5 @@
 import { beforeEach, afterEach, vi } from 'vitest'
 
-// Mock localStorage
 const localStorageMock = {
   getItem: vi.fn(),
   setItem: vi.fn(),
@@ -12,7 +11,6 @@ const localStorageMock = {
 
 global.localStorage = localStorageMock as any
 
-// Reset mocks before each test
 beforeEach(() => {
   vi.clearAllMocks()
   localStorageMock.getItem.mockClear()

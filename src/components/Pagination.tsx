@@ -22,7 +22,6 @@ export const Pagination = ({
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
-      {/* Left side - Rows per page */}
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
           <span className="text-sm text-gray-700 dark:text-gray-300">Rows per page:</span>
@@ -43,7 +42,6 @@ export const Pagination = ({
         </span>
       </div>
 
-      {/* Center - Page info and Go to page */}
       <div className="flex items-center gap-4">
         <span className="text-sm text-gray-700 dark:text-gray-300">
           Page {currentPage} of {totalPages}
@@ -67,7 +65,6 @@ export const Pagination = ({
         </div>
       </div>
 
-      {/* Right side - Navigation buttons */}
       <div className="flex items-center gap-2">
         <button
           onClick={() => onPageChange(currentPage - 1)}

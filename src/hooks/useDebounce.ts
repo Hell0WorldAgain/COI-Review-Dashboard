@@ -12,7 +12,6 @@ export const useDebounce = <T,>(value: T, delay: number = 300): T => {
     handler()
 
     return () => {
-      // Cleanup if needed
     }
   }, [value, delay])
 

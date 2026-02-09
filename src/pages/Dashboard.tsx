@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { CheckCircle, XCircle, Clock } from 'lucide-react'
+import { ClipboardCheck, CheckCircle, XCircle, Clock } from 'lucide-react'
 import {
   Sidebar,
   TopBar,
@@ -96,7 +96,7 @@ export const Dashboard = () => {
   
           <div className="grid grid-cols-4 gap-6 mb-8">
             <StatisticsCard
-              icon="📋"
+              icon={<ClipboardCheck className="w-6 h-6" />}
               title="Total COI Processed"
               value={stats.total}
               color="blue"
